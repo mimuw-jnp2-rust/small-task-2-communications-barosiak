@@ -243,32 +243,32 @@ mod tests {
             CommsError::UnexpectedHandshake(String::from("TestServer"))
         );
 
-        // // GET
-        // let response = server.receive(Message {
-        //     msg_type: MessageType::GetCount,
-        //     load: String::new(),
-        // })?;
-        // assert_eq!(response, Response::GetCount(0));
-        // assert_eq!(server.post_count, 0);
-        //
-        // // POST
-        // let response = server.receive(Message {
-        //     msg_type: MessageType::Post,
-        //     load: String::from("The tale begins..."),
-        // })?;
-        // assert_eq!(response, Response::PostReceived);
-        // assert_eq!(server.post_count, 1);
+        // GET
+        let response = server.receive(Message {
+            msg_type: MessageType::GetCount,
+            load: String::new(),
+        })?;
+        assert_eq!(response, Response::GetCount(0));
+        assert_eq!(server.post_count, 0);
 
-        // // another POST should cause a server error
-        // let result = server.receive(Message {
-        //     msg_type: MessageType::Post,
-        //     load: String::from("...and quickly ends."),
-        // });
-        // let error_msg = result.unwrap_err();
-        // assert_eq!(
-        //     error_msg,
-        //     CommsError::ServerLimitReached(String::from("TestServer"))
-        // );
+        // POST
+        let response = server.receive(Message {
+            msg_type: MessageType::Post,
+            load: String::from("The tale begins..."),
+        })?;
+        assert_eq!(response, Response::PostReceived);
+        assert_eq!(server.post_count, 1);
+
+        // another POST should cause a server error
+        let result = server.receive(Message {
+            msg_type: MessageType::Post,
+            load: String::from("...and quickly ends."),
+        });
+        let error_msg = result.unwrap_err();
+        assert_eq!(
+            error_msg,
+            CommsError::ServerLimitReached(String::from("TestServer"))
+        );
 
         Ok(())
     }
@@ -338,37 +338,37 @@ mod tests {
             error_msg,
             CommsError::ServerLimitReached(String::from("TestServer"))
         );
-        //
-        // // The connection to the server should have been closed
-        // assert!(!client.is_open("197.0.0.1"));
-        //
-        // // No more messages can be sent through a halted connection.
-        // let result = client.send(
-        //     "197.0.0.1",
-        //     Message {
-        //         msg_type: MessageType::Post,
-        //         load: String::from("Maybe this time?"),
-        //     },
-        // );
-        // let error_msg = result.unwrap_err();
-        // assert_eq!(
-        //     error_msg,
-        //     CommsError::ConnectionClosed(String::from("197.0.0.1"))
-        // );
-        //
-        // // Sending through a nonexistent connection should give an error
-        // let result = client.send(
-        //     "10.0.0.1",
-        //     Message {
-        //         msg_type: MessageType::Post,
-        //         load: String::new(),
-        //     },
-        // );
-        // let error_msg = result.unwrap_err();
-        // assert_eq!(
-        //     error_msg,
-        //     CommsError::ConnectionNotFound(String::from("10.0.0.1"))
-        // );
+
+        // The connection to the server should have been closed
+        assert!(!client.is_open("197.0.0.1"));
+
+        // No more messages can be sent through a halted connection.
+        let result = client.send(
+            "197.0.0.1",
+            Message {
+                msg_type: MessageType::Post,
+                load: String::from("Maybe this time?"),
+            },
+        );
+        let error_msg = result.unwrap_err();
+        assert_eq!(
+            error_msg,
+            CommsError::ConnectionClosed(String::from("197.0.0.1"))
+        );
+
+        // Sending through a nonexistent connection should give an error
+        let result = client.send(
+            "10.0.0.1",
+            Message {
+                msg_type: MessageType::Post,
+                load: String::new(),
+            },
+        );
+        let error_msg = result.unwrap_err();
+        assert_eq!(
+            error_msg,
+            CommsError::ConnectionNotFound(String::from("10.0.0.1"))
+        );
 
         Ok(())
     }
